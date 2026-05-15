@@ -1,3 +1,7 @@
+// ==========================================
+// EXE COMMUNITY WELCOME SYSTEM
+// ==========================================
+
 import { getColor } from '../../config/bot.js';
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, MessageFlags } from 'discord.js';
 import { errorEmbed } from '../../utils/embeds.js';
@@ -9,43 +13,31 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName('welcome')
-        .setDescription('Configure the welcome system')
+        .setDescription('Configure the EXE welcome system')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Set up the welcome message')
+                .setDescription('Setup EXE welcome system')
                 .addChannelOption(option =>
                     option.setName('channel')
-                        .setDescription('The channel to send welcome messages to')
+                        .setDescription('Welcome channel')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true))
                 .addStringOption(option =>
-                    option.setName('message')
-                        .setDescription('Welcome message. Variables: {user}, {username}, {server}, {memberCount}')
-                        .setRequired(true))
-                .addStringOption(option =>
                     option.setName('image')
-                        .setDescription('URL of the image to include in the welcome message')
+                        .setDescription('Banner image URL')
                         .setRequired(false))
                 .addBooleanOption(option =>
                     option.setName('ping')
-                        .setDescription('Whether to ping the user in the welcome message')
+                        .setDescription('Ping the member')
                         .setRequired(false))),
 
     async execute(interaction) {
+
         try {
-            const deferSuccess = await InteractionHelper.safeDefer(interaction);
-            if (!deferSuccess) {
-                logger.warn(`Welcome interaction defer failed`, {
-                    userId: interaction.user.id,
-                    guildId: interaction.guildId,
-                    commandName: 'welcome'
-                });
-                return;
-            }
-        } catch (deferError) {
-            logger.error(`Welcome defer error`, { error: deferError.message });
+            await InteractionHelper.safeDefer(interaction);
+        } catch (err) {
             return;
         }
 
@@ -53,7 +45,12 @@ export default {
 
         if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
             return await InteractionHelper.safeEditReply(interaction, {
-                embeds: [errorEmbed('Missing Permissions', 'You need the **Manage Server** permission to use `/welcome`.')],
+                embeds: [
+                    errorEmbed(
+                        'Missing Permissions',
+                        'You need **Manage Server** permission.'
+                    )
+                ],
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -61,90 +58,110 @@ export default {
         const subcommand = options.getSubcommand();
 
         if (subcommand === 'setup') {
+
             const channel = options.getChannel('channel');
-            const message = options.getString('message');
             const image = options.getString('image');
-            const ping = options.getBoolean('ping') ?? false;
+            const ping = options.getBoolean('ping') ?? true;
 
             const existingConfig = await getWelcomeConfig(client, guild.id);
-            if (existingConfig?.channelId) {
-                logger.info(`[Welcome] Setup blocked because config already exists in channel ${existingConfig.channelId} for guild ${guild.id}`);
-                return await InteractionHelper.safeEditReply(interaction, {
-                    embeds: [errorEmbed(
-                        'Welcome Setup Already Exists',
-                        `Welcome is already configured for <#${existingConfig.channelId}>. Use **/welcome config** to customize channel, message, ping, or image.`
-                    )],
-                    flags: MessageFlags.Ephemeral
-                });
-            }
-            
-            if (!message || message.trim().length === 0) {
-                logger.warn(`[Welcome] Empty message provided by ${interaction.user.tag} in ${guild.name}`);
-                return await InteractionHelper.safeEditReply(interaction, {
-                    embeds: [errorEmbed('Invalid Input', 'Welcome message cannot be empty')],
-                    flags: MessageFlags.Ephemeral
-                });
-            }
 
-            
-            if (image) {
-                try {
-                    new URL(image);
-                } catch (e) {
-                    logger.warn(`[Welcome] Invalid image URL provided by ${interaction.user.tag}: ${image}`);
-                    return await InteractionHelper.safeEditReply(interaction, {
-                        embeds: [errorEmbed('Invalid Image URL', 'Please provide a valid image URL (must start with http:// or https://')],
-                        flags: MessageFlags.Ephemeral
-                    });
-                }
+            if (existingConfig?.channelId) {
+                return await InteractionHelper.safeEditReply(interaction, {
+                    embeds: [
+                        errorEmbed(
+                            'Already Configured',
+                            `Welcome system already exists in <#${existingConfig.channelId}>`
+                        )
+                    ],
+                    flags: MessageFlags.Ephemeral
+                });
             }
 
             try {
+
                 await updateWelcomeConfig(client, guild.id, {
                     enabled: true,
                     channelId: channel.id,
-                    welcomeMessage: message,
+                    welcomePing: ping,
                     welcomeImage: image || undefined,
-                    welcomePing: ping
-                });
+                    welcomeMessage:
+`⚡ Welcome to EXE Community!
 
-                logger.info(`[Welcome] Setup configured by ${interaction.user.tag} for guild ${guild.name} (${guild.id})`);
+Hey {user} welcome to **EXE Community** 🔥
+You are member **#{memberCount}**
 
-                const previewMessage = formatWelcomeMessage(message, {
-                    user: interaction.user,
-                    guild
+━━━━━━━━━━━━━━━━━━
+
+🚀 **GET STARTED**
+📜 Read the rules
+✅ Verify & Enter
+💬 Join the community
+🎮 Participate in events
+🎫 Open a support ticket
+
+━━━━━━━━━━━━━━━━━━
+
+🏆 **COMMUNITY PERKS**
+🎁 Invite rewards
+💎 Exclusive access
+⚡ Fast support
+🔥 Active community
+
+━━━━━━━━━━━━━━━━━━
+
+Enjoy your stay in **EXE Community**`
                 });
 
                 const embed = new EmbedBuilder()
-                    .setColor(getColor('success'))
-                    .setTitle('✅ Welcome System Configured')
-                    .setDescription(`Welcome messages will now be sent to ${channel}`)
+                    .setColor('#6d28d9')
+                    .setTitle('⚡ EXE Welcome System Configured')
+                    .setDescription(`Welcome messages will now be sent in ${channel}`)
                     .addFields(
-                        { name: 'Message Preview', value: previewMessage },
-                        { name: 'Ping User', value: ping ? '✅ Yes' : '❌ No' },
-                        { name: 'Status', value: '✅ Enabled' }
+                        {
+                            name: 'Status',
+                            value: '✅ Enabled',
+                            inline: true
+                        },
+                        {
+                            name: 'Ping User',
+                            value: ping ? '✅ Yes' : '❌ No',
+                            inline: true
+                        },
+                        {
+                            name: 'Style',
+                            value: '🔥 EXE Community',
+                            inline: true
+                        }
                     )
-                    .setFooter({ text: 'Tip: Use /welcome config to customize welcome settings' });
+                    .setFooter({
+                        text: 'EXE Community • Welcome System'
+                    })
+                    .setTimestamp();
 
                 if (image) {
                     embed.setImage(image);
                 }
 
-                await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
-            } catch (error) {
-                logger.error(`[Welcome] Failed to setup welcome system for guild ${guild.id}:`, error);
                 await InteractionHelper.safeEditReply(interaction, {
-                    embeds: [errorEmbed(
-                        'Setup Failed',
-                        'An error occurred while configuring the welcome system. Please try again.',
-                        { showDetails: true }
-                    )],
+                    embeds: [embed]
+                });
+
+                logger.info(`[EXE Welcome] Configured in ${guild.name}`);
+
+            } catch (error) {
+
+                logger.error(`[EXE Welcome] Failed:`, error);
+
+                await InteractionHelper.safeEditReply(interaction, {
+                    embeds: [
+                        errorEmbed(
+                            'Setup Failed',
+                            'Failed to configure welcome system.'
+                        )
+                    ],
                     flags: MessageFlags.Ephemeral
                 });
             }
         }
     },
 };
-
-
-
