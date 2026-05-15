@@ -1,12 +1,21 @@
 // ==========================================
-// EXE COMMUNITY WELCOME SYSTEM
+// EXE COMMUNITY TOXIC WELCOME SYSTEM
 // ==========================================
 
 import { getColor } from '../../config/bot.js';
-import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, MessageFlags } from 'discord.js';
+import {
+    SlashCommandBuilder,
+    PermissionFlagsBits,
+    ChannelType,
+    EmbedBuilder,
+    MessageFlags,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
+} from 'discord.js';
+
 import { errorEmbed } from '../../utils/embeds.js';
 import { getWelcomeConfig, updateWelcomeConfig } from '../../utils/database.js';
-import { formatWelcomeMessage } from '../../utils/welcome.js';
 import { logger } from '../../utils/logger.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 
@@ -15,35 +24,47 @@ export default {
         .setName('welcome')
         .setDescription('Configure the EXE welcome system')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Setup EXE welcome system')
+                .setDescription('Setup EXE toxic welcome system')
+
                 .addChannelOption(option =>
-                    option.setName('channel')
+                    option
+                        .setName('channel')
                         .setDescription('Welcome channel')
                         .addChannelTypes(ChannelType.GuildText)
-                        .setRequired(true))
+                        .setRequired(true)
+                )
+
                 .addStringOption(option =>
-                    option.setName('image')
+                    option
+                        .setName('image')
                         .setDescription('Banner image URL')
-                        .setRequired(false))
+                        .setRequired(false)
+                )
+
                 .addBooleanOption(option =>
-                    option.setName('ping')
+                    option
+                        .setName('ping')
                         .setDescription('Ping the member')
-                        .setRequired(false))),
+                        .setRequired(false)
+                )
+        ),
 
     async execute(interaction) {
 
         try {
             await InteractionHelper.safeDefer(interaction);
-        } catch (err) {
+        } catch {
             return;
         }
 
         const { options, guild, client } = interaction;
 
         if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     errorEmbed(
@@ -66,6 +87,7 @@ export default {
             const existingConfig = await getWelcomeConfig(client, guild.id);
 
             if (existingConfig?.channelId) {
+
                 return await InteractionHelper.safeEditReply(interaction, {
                     embeds: [
                         errorEmbed(
@@ -84,38 +106,73 @@ export default {
                     channelId: channel.id,
                     welcomePing: ping,
                     welcomeImage: image || undefined,
+
                     welcomeMessage:
-`⚡ Welcome to EXE Community!
+`💀 Welcome to EXE Community
 
-Hey {user} welcome to **EXE Community** 🔥
-You are member **#{memberCount}**
+{user} just entered the EXE zone ⚡
 
-━━━━━━━━━━━━━━━━━━
-
-🚀 **GET STARTED**
-📜 Read the rules
-✅ Verify & Enter
-💬 Join the community
-🎮 Participate in events
-🎫 Open a support ticket
+👾 Member #{memberCount}
 
 ━━━━━━━━━━━━━━━━━━
 
-🏆 **COMMUNITY PERKS**
-🎁 Invite rewards
-💎 Exclusive access
-⚡ Fast support
-🔥 Active community
+📜 Read the Rules
+Get familiar with our community guidelines.
+
+🌐 Visit Website
+Explore EXE Community and connect with the platform.
+
+🧬 Create Your Profile
+Customize your identity and social links.
+
+🆘 Need Help?
+Open a support ticket and our staff team will assist you.
 
 ━━━━━━━━━━━━━━━━━━
 
-Enjoy your stay in **EXE Community**`
+💀 EXE Community • execommunity.xyz`
                 });
 
+                // =========================
+                // BUTTONS
+                // =========================
+
+                const row = new ActionRowBuilder()
+                    .addComponents(
+
+                        new ButtonBuilder()
+                            .setLabel('Rules')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setURL('https://discord.com/channels/YOURSERVER/RULESCHANNEL'),
+
+                        new ButtonBuilder()
+                            .setLabel('Website')
+                            .setStyle(ButtonStyle.Link)
+                            .setURL('https://execommunity.xyz'),
+
+                        new ButtonBuilder()
+                            .setLabel('Create Profile')
+                            .setStyle(ButtonStyle.Link)
+                            .setURL('https://execommunity.xyz/profile'),
+
+                        new ButtonBuilder()
+                            .setLabel('Support')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setURL('https://discord.com/channels/YOURSERVER/TICKETCHANNEL')
+                    );
+
+                // =========================
+                // EMBED
+                // =========================
+
                 const embed = new EmbedBuilder()
-                    .setColor('#6d28d9')
-                    .setTitle('⚡ EXE Welcome System Configured')
-                    .setDescription(`Welcome messages will now be sent in ${channel}`)
+                    .setColor('#39FF14')
+                    .setTitle('💀 EXE Community')
+                    .setDescription(
+`⚡ Toxic welcome system successfully configured.
+
+Welcome messages will now be sent in ${channel}`
+                    )
                     .addFields(
                         {
                             name: 'Status',
@@ -129,12 +186,12 @@ Enjoy your stay in **EXE Community**`
                         },
                         {
                             name: 'Style',
-                            value: '🔥 EXE Community',
+                            value: '☣️ Toxic EXE',
                             inline: true
                         }
                     )
                     .setFooter({
-                        text: 'EXE Community • Welcome System'
+                        text: 'EXE Community • Toxic System'
                     })
                     .setTimestamp();
 
@@ -143,7 +200,8 @@ Enjoy your stay in **EXE Community**`
                 }
 
                 await InteractionHelper.safeEditReply(interaction, {
-                    embeds: [embed]
+                    embeds: [embed],
+                    components: [row]
                 });
 
                 logger.info(`[EXE Welcome] Configured in ${guild.name}`);
