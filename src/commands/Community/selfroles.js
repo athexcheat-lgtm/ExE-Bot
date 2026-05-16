@@ -3,103 +3,86 @@ import {
     PermissionFlagsBits,
     EmbedBuilder,
     ActionRowBuilder,
-    StringSelectMenuBuilder,
-    StringSelectMenuOptionBuilder
+    StringSelectMenuBuilder
 } from 'discord.js';
 
 export default {
 
     data: new SlashCommandBuilder()
         .setName('selfroles')
-        .setDescription('Send the EXE Community self-role panel')
+        .setDescription('Send self role panel')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
     async execute(interaction) {
-
-        // ==========================================
-        // EMBED
-        // ==========================================
 
         const embed = new EmbedBuilder()
             .setColor('#39FF14')
             .setTitle('🎭 EXE Community Self Roles')
             .setDescription(`
-Choose your roles and customize your profile ⚡
+Choose your roles ⚡
 
-🎮 Game Roles
-🔞 Age Roles
-🌍 Country Roles
-❤️ Status Roles
+🎮 Games
+🔞 Age
+🌍 Country
+❤️ Status
+            `);
 
-Use the menus below to select your roles.
-`)
-            .setFooter({
-                text: 'EXE Community • Self Roles'
-            });
-
-        // ==========================================
-        // GAME MENU
-        // ==========================================
+        // =====================================
+        // GAMES
+        // =====================================
 
         const gamesMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_games')
             .setPlaceholder('🎮 Select your games')
-            .setMinValues(0)
-            .setMaxValues(5)
-            .addOptions(
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('FiveM')
-                    .setValue('fivem')
-                    .setEmoji('🚓'),
+            .addOptions([
+                {
+                    label: 'FiveM',
+                    value: 'fivem',
+                    emoji: '🚓'
+                },
+                {
+                    label: 'CS2',
+                    value: 'cs2',
+                    emoji: '🔫'
+                },
+                {
+                    label: 'Valorant',
+                    value: 'valorant',
+                    emoji: '🎯'
+                }
+            ]);
 
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('CS2')
-                    .setValue('cs2')
-                    .setEmoji('🔫'),
-
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('Valorant')
-                    .setValue('valorant')
-                    .setEmoji('🎯'),
-
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('Free Fire')
-                    .setValue('freefire')
-                    .setEmoji('🔥')
-            );
-
-        // ==========================================
-        // AGE MENU
-        // ==========================================
+        // =====================================
+        // AGE
+        // =====================================
 
         const ageMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_age')
             .setPlaceholder('🔞 Select your age')
-            .setMinValues(1)
-            .setMaxValues(1)
-            .addOptions(
+            .addOptions([
                 {
                     label: '-18',
-                    value: 'minus18',
-                    emoji: '🧒'
+                    value: 'minus18'
                 },
                 {
                     label: '+18',
-                    value: 'plus18',
-                    emoji: '🧑'
+                    value: 'plus18'
                 }
-            );
+            ]);
 
-        // ==========================================
-        // COUNTRY MENU
-        // ==========================================
+        // =====================================
+        // COUNTRY
+        // =====================================
 
         const countryMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_country')
-            .setPlaceholder('🌍 Select your country')
-            .setMinValues(1)
-            .setMaxValues(1)
-            .addOptions(
+            .setPlaceholder('🌍 Select country')
+            .addOptions([
+                {
+                    label: 'Tunisia',
+                    value: 'tn',
+                    emoji: '🇹🇳'
+                },
                 {
                     label: 'Algeria',
                     value: 'dz',
@@ -109,79 +92,50 @@ Use the menus below to select your roles.
                     label: 'Brazil',
                     value: 'br',
                     emoji: '🇧🇷'
-                },
-                {
-                    label: 'Morocco',
-                    value: 'ma',
-                    emoji: '🇲🇦'
-                },
-                {
-                    label: 'Saudi Arabia',
-                    value: 'sa',
-                    emoji: '🇸🇦'
-                },
-                {
-                    label: 'Tunisia',
-                    value: 'tn',
-                    emoji: '🇹🇳'
-                },
-                {
-                    label: 'USA',
-                    value: 'us',
-                    emoji: '🇺🇸'
                 }
-            );
+            ]);
 
-        // ==========================================
-        // STATUS MENU
-        // ==========================================
+        // =====================================
+        // STATUS
+        // =====================================
 
         const statusMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_status')
-            .setPlaceholder('❤️ Select your status')
-            .setMinValues(1)
-            .setMaxValues(1)
-            .addOptions(
+            .setPlaceholder('❤️ Select status')
+            .addOptions([
                 {
                     label: 'Single',
-                    value: 'single',
-                    emoji: '💔'
+                    value: 'single'
                 },
                 {
                     label: 'In Couple',
-                    value: 'couple',
-                    emoji: '❤️'
-                },
-                {
-                    label: 'Looking',
-                    value: 'looking',
-                    emoji: '👀'
+                    value: 'couple'
                 }
-            );
+            ]);
 
-        // ==========================================
-        // ACTION ROWS
-        // ==========================================
+        // =====================================
+        // ROWS
+        // =====================================
 
-        const rows = [
-            new ActionRowBuilder().addComponents(gamesMenu),
-            new ActionRowBuilder().addComponents(ageMenu),
-            new ActionRowBuilder().addComponents(countryMenu),
-            new ActionRowBuilder().addComponents(statusMenu)
-        ];
+        const row1 = new ActionRowBuilder()
+            .addComponents(gamesMenu);
 
-        // ==========================================
-        // SEND PANEL
-        // ==========================================
+        const row2 = new ActionRowBuilder()
+            .addComponents(ageMenu);
 
-        await interaction.channel.send({
-            embeds: [embed],
-            components: rows
-        });
+        const row3 = new ActionRowBuilder()
+            .addComponents(countryMenu);
+
+        const row4 = new ActionRowBuilder()
+            .addComponents(statusMenu);
+
+        // =====================================
+        // SEND
+        // =====================================
 
         await interaction.reply({
-            content: '✅ Self-role panel sent successfully.',
-            ephemeral: true
+            embeds: [embed],
+            components: [row1, row2, row3, row4]
         });
     }
 };
