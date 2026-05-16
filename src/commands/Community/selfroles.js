@@ -3,7 +3,8 @@ import {
     PermissionFlagsBits,
     EmbedBuilder,
     ActionRowBuilder,
-    StringSelectMenuBuilder
+    StringSelectMenuBuilder,
+    ComponentType
 } from 'discord.js';
 
 export default {
@@ -34,7 +35,7 @@ Choose your roles ⚡
         const gamesMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_games')
             .setPlaceholder('🎮 Select your games')
-            .addOptions([
+            .addOptions(
                 {
                     label: 'FiveM',
                     value: 'fivem',
@@ -50,7 +51,7 @@ Choose your roles ⚡
                     value: 'valorant',
                     emoji: '🎯'
                 }
-            ]);
+            );
 
         // =====================================
         // AGE
@@ -59,7 +60,7 @@ Choose your roles ⚡
         const ageMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_age')
             .setPlaceholder('🔞 Select your age')
-            .addOptions([
+            .addOptions(
                 {
                     label: '-18',
                     value: 'minus18'
@@ -68,7 +69,7 @@ Choose your roles ⚡
                     label: '+18',
                     value: 'plus18'
                 }
-            ]);
+            );
 
         // =====================================
         // COUNTRY
@@ -77,7 +78,7 @@ Choose your roles ⚡
         const countryMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_country')
             .setPlaceholder('🌍 Select country')
-            .addOptions([
+            .addOptions(
                 {
                     label: 'Tunisia',
                     value: 'tn',
@@ -93,7 +94,7 @@ Choose your roles ⚡
                     value: 'br',
                     emoji: '🇧🇷'
                 }
-            ]);
+            );
 
         // =====================================
         // STATUS
@@ -102,7 +103,7 @@ Choose your roles ⚡
         const statusMenu = new StringSelectMenuBuilder()
             .setCustomId('roles_status')
             .setPlaceholder('❤️ Select status')
-            .addOptions([
+            .addOptions(
                 {
                     label: 'Single',
                     value: 'single'
@@ -111,7 +112,7 @@ Choose your roles ⚡
                     label: 'In Couple',
                     value: 'couple'
                 }
-            ]);
+            );
 
         // =====================================
         // ROWS
