@@ -275,7 +275,170 @@ export default {
               handler: 'general'
             }, interactionTraceContext));
           }
-        } else if (interaction.isStringSelectMenu()) {
+        } else if (interaction.isStringSelectMenu()) {else if (interaction.isStringSelectMenu()) {
+
+    // ==========================================
+    // EXE COMMUNITY SELF ROLES
+    // ==========================================
+
+    if (interaction.customId === 'roles_games') {
+
+        const roles = {
+            fivem: '1505170130806767636',
+            cs2: '1505170165925548043',
+            valorant: '1505170150628921484'
+        };
+
+        for (const roleId of Object.values(roles)) {
+
+            if (interaction.member.roles.cache.has(roleId)) {
+                await interaction.member.roles.remove(roleId);
+            }
+        }
+
+        for (const value of interaction.values) {
+
+            const roleId = roles[value];
+
+            if (roleId) {
+                await interaction.member.roles.add(roleId);
+            }
+        }
+
+        return interaction.reply({
+            content: '✅ Game roles updated.',
+            flags: MessageFlags.Ephemeral
+        });
+    }
+
+    // ==========================================
+    // AGE ROLES
+    // ==========================================
+
+    if (interaction.customId === 'roles_age') {
+
+        const roles = {
+            minus18: '1505170044869414922',
+            plus18: '1505170016859848844'
+        };
+
+        for (const roleId of Object.values(roles)) {
+
+            if (interaction.member.roles.cache.has(roleId)) {
+                await interaction.member.roles.remove(roleId);
+            }
+        }
+
+        const selected = roles[interaction.values[0]];
+
+        if (selected) {
+            await interaction.member.roles.add(selected);
+        }
+
+        return interaction.reply({
+            content: '✅ Age role updated.',
+            flags: MessageFlags.Ephemeral
+        });
+    }
+
+    // ==========================================
+    // COUNTRY ROLES
+    // ==========================================
+
+    if (interaction.customId === 'roles_country') {
+
+        const roles = {
+            dz: '1505169627997667461',
+            br: '1505169688659886221',
+            ma: '1505169759681904661',
+            sa: '1505169923855482900',
+            tn: '1505169783073804430',
+            us: '1505169805429182604'
+        };
+
+        for (const roleId of Object.values(roles)) {
+
+            if (interaction.member.roles.cache.has(roleId)) {
+                await interaction.member.roles.remove(roleId);
+            }
+        }
+
+        const selected = roles[interaction.values[0]];
+
+        if (selected) {
+            await interaction.member.roles.add(selected);
+        }
+
+        return interaction.reply({
+            content: '✅ Country role updated.',
+            flags: MessageFlags.Ephemeral
+        });
+    }
+
+    // ==========================================
+    // STATUS ROLES
+    // ==========================================
+
+    if (interaction.customId === 'roles_status') {
+
+        const roles = {
+            single: '1505169405942956172',
+            couple: '1505169464235397261',
+            looking: '1505169489757732895'
+        };
+
+        for (const roleId of Object.values(roles)) {
+
+            if (interaction.member.roles.cache.has(roleId)) {
+                await interaction.member.roles.remove(roleId);
+            }
+        }
+
+        const selected = roles[interaction.values[0]];
+
+        if (selected) {
+            await interaction.member.roles.add(selected);
+        }
+
+        return interaction.reply({
+            content: '✅ Status role updated.',
+            flags: MessageFlags.Ephemeral
+        });
+    }
+
+    // ==========================================
+    // EXISTING SELECT MENU SYSTEM
+    // ==========================================
+
+    const [customId, ...args] = interaction.customId.split(':');
+    const selectMenu = client.selectMenus.get(customId);
+
+    if (!selectMenu) {
+
+        if (!interaction.customId.includes(':')) {
+            return;
+        }
+
+        throw createError(
+            `No select menu handler found for ${customId}`,
+            ErrorTypes.CONFIGURATION,
+            'This select menu is not available.',
+            withTraceContext({ customId }, interactionTraceContext)
+        );
+    }
+
+    try {
+
+        await selectMenu.execute(interaction, client, args);
+
+    } catch (error) {
+
+        await handleInteractionError(interaction, error, withTraceContext({
+            type: 'select_menu',
+            customId: interaction.customId
+        }, interactionTraceContext));
+    }
+}
           const [customId, ...args] = interaction.customId.split(':');
           const selectMenu = client.selectMenus.get(customId);
 
