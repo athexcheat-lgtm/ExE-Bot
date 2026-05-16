@@ -3,140 +3,69 @@ import {
     PermissionFlagsBits,
     EmbedBuilder,
     ActionRowBuilder,
-    StringSelectMenuBuilder,
-    ComponentType
+    ButtonBuilder,
+    ButtonStyle
 } from 'discord.js';
 
 export default {
 
     data: new SlashCommandBuilder()
         .setName('selfroles')
-        .setDescription('Send self role panel')
+        .setDescription('Send EXE self roles panel')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
     async execute(interaction) {
 
         const embed = new EmbedBuilder()
-            .setColor('#39FF14')
-            .setTitle('🎭 EXE Community Self Roles')
+            .setColor('#ff0000')
+            .setTitle('🎭 EXE Community Roles')
             .setDescription(`
-Choose your roles ⚡
+Customize your EXE profile by selecting your roles.
 
-🎮 Games
-🔞 Age
-🌍 Country
-❤️ Status
-            `);
+Browse categories below and choose what represents you ⚡
 
-        // =====================================
-        // GAMES
-        // =====================================
+**🔞 Age** • Select your age group  
+**❤️ Relationship** • Share your status  
+**🎮 Games** • Select your favorite games  
+**🌍 Country** • Choose your country
 
-        const gamesMenu = new StringSelectMenuBuilder()
-            .setCustomId('roles_games')
-            .setPlaceholder('🎮 Select your games')
-            .addOptions(
-                {
-                    label: 'FiveM',
-                    value: 'fivem',
-                    emoji: '🚓'
-                },
-                {
-                    label: 'CS2',
-                    value: 'cs2',
-                    emoji: '🔫'
-                },
-                {
-                    label: 'Valorant',
-                    value: 'valorant',
-                    emoji: '🎯'
-                }
+━━━━━━━━━━━━━━━━━━
+Click a category button below to continue.
+            `)
+            .setFooter({
+                text: 'EXE Community • Self Roles'
+            });
+
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('open_age_roles')
+                    .setLabel('Age')
+                    .setEmoji('🔞')
+                    .setStyle(ButtonStyle.Secondary),
+
+                new ButtonBuilder()
+                    .setCustomId('open_status_roles')
+                    .setLabel('Relationship')
+                    .setEmoji('❤️')
+                    .setStyle(ButtonStyle.Secondary),
+
+                new ButtonBuilder()
+                    .setCustomId('open_games_roles')
+                    .setLabel('Games')
+                    .setEmoji('🎮')
+                    .setStyle(ButtonStyle.Secondary),
+
+                new ButtonBuilder()
+                    .setCustomId('open_country_roles')
+                    .setLabel('Country')
+                    .setEmoji('🌍')
+                    .setStyle(ButtonStyle.Secondary)
             );
-
-        // =====================================
-        // AGE
-        // =====================================
-
-        const ageMenu = new StringSelectMenuBuilder()
-            .setCustomId('roles_age')
-            .setPlaceholder('🔞 Select your age')
-            .addOptions(
-                {
-                    label: '-18',
-                    value: 'minus18'
-                },
-                {
-                    label: '+18',
-                    value: 'plus18'
-                }
-            );
-
-        // =====================================
-        // COUNTRY
-        // =====================================
-
-        const countryMenu = new StringSelectMenuBuilder()
-            .setCustomId('roles_country')
-            .setPlaceholder('🌍 Select country')
-            .addOptions(
-                {
-                    label: 'Tunisia',
-                    value: 'tn',
-                    emoji: '🇹🇳'
-                },
-                {
-                    label: 'Algeria',
-                    value: 'dz',
-                    emoji: '🇩🇿'
-                },
-                {
-                    label: 'Brazil',
-                    value: 'br',
-                    emoji: '🇧🇷'
-                }
-            );
-
-        // =====================================
-        // STATUS
-        // =====================================
-
-        const statusMenu = new StringSelectMenuBuilder()
-            .setCustomId('roles_status')
-            .setPlaceholder('❤️ Select status')
-            .addOptions(
-                {
-                    label: 'Single',
-                    value: 'single'
-                },
-                {
-                    label: 'In Couple',
-                    value: 'couple'
-                }
-            );
-
-        // =====================================
-        // ROWS
-        // =====================================
-
-        const row1 = new ActionRowBuilder()
-            .addComponents(gamesMenu);
-
-        const row2 = new ActionRowBuilder()
-            .addComponents(ageMenu);
-
-        const row3 = new ActionRowBuilder()
-            .addComponents(countryMenu);
-
-        const row4 = new ActionRowBuilder()
-            .addComponents(statusMenu);
-
-        // =====================================
-        // SEND
-        // =====================================
 
         await interaction.reply({
             embeds: [embed],
-            components: [row1, row2, row3, row4]
+            components: [row]
         });
     }
-};
+}; 
